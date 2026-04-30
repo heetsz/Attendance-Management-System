@@ -1,0 +1,353 @@
+/* ─── Landing Page ─── */
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-hero);
+}
+
+/* ─── Animated Background Orbs ─── */
+.bg-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  animation: float 8s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  bottom: -80px;
+  right: -80px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.orb-3 {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.2) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: float 12s ease-in-out infinite;
+}
+
+/* ─── Grid Pattern ─── */
+.grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: 0;
+}
+
+/* ─── Container ─── */
+.landing-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 680px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+/* ─── Header ─── */
+.landing-header {
+  text-align: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
+  color: white;
+  padding: 10px;
+  box-shadow: var(--shadow-glow);
+}
+
+.logo-text h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.logo-tagline {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-400);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ─── Hero ─── */
+.landing-hero {
+  text-align: center;
+  width: 100%;
+}
+
+.hero-content {
+  margin-bottom: 48px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--primary-300);
+  margin-bottom: 24px;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent-400);
+  border-radius: 50%;
+  animation: pulse-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(45, 212, 191, 0.6);
+}
+
+.hero-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--gray-400);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ─── Role Cards ─── */
+.role-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.role-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  backdrop-filter: blur(24px);
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  font-family: inherit;
+  color: inherit;
+}
+
+.role-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.role-card-admin:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.role-card-student:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow-accent);
+}
+
+.card-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.role-card:hover .card-glow {
+  opacity: 1;
+}
+
+.card-glow-admin {
+  background: var(--gradient-primary);
+}
+
+.card-glow-student {
+  background: var(--gradient-accent);
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.card-icon-wrapper {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.admin-icon-wrapper {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--primary-400);
+}
+
+.student-icon-wrapper {
+  background: rgba(20, 184, 166, 0.12);
+  color: var(--accent-400);
+}
+
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-info h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.card-info p {
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  line-height: 1.5;
+}
+
+.card-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  transition: color var(--transition-fast);
+}
+
+.card-action svg {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-fast);
+}
+
+.role-card:hover .card-action {
+  color: white;
+}
+
+.role-card:hover .card-action svg {
+  transform: translateX(4px);
+}
+
+/* ─── Divider ─── */
+.cards-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.divider-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  letter-spacing: 0.08em;
+}
+
+/* ─── Footer ─── */
+.landing-footer {
+  text-align: center;
+}
+
+.landing-footer p {
+  font-size: 0.8rem;
+  color: var(--gray-600);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .card-action span {
+    display: none;
+  }
+}

@@ -1,0 +1,27 @@
+# ─── Dependencies ───
+node_modules/
+
+# ─── Environment secrets ───
+.env
+.env.*
+!.env.example
+
+# ─── Logs ───
+*.log
+npm-debug.log*
+logs/
+
+# ─── Runtime & build artifacts ───
+dist/
+build/
+
+# ─── OS noise ───
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor ───
+.vscode/
+.idea/
+*.suo
+*.user
