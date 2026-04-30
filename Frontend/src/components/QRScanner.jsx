@@ -6,9 +6,7 @@ import './QRScanner.css';
 let Html5Qrcode;
 
 const QRScanner = () => {
-  const [mode, setMode] = useState('manual'); // 'camera' | 'manual'
   const [scanning, setScanning] = useState(false);
-  const [manualToken, setManualToken] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -62,7 +60,7 @@ const QRScanner = () => {
       if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied') || msg.toLowerCase().includes('notallowed')) {
         setError('camera_denied');
       } else {
-        setError('Camera unavailable. Use the manual token tab instead.');
+        setError('Camera unavailable. Please check your browser permissions.');
       }
     }
   };
@@ -96,16 +94,9 @@ const QRScanner = () => {
     }
   };
 
-  const handleManualSubmit = async (e) => {
-    e.preventDefault();
-    await submitToken(manualToken);
-    setManualToken('');
-  };
-
   const reset = () => {
     setResult(null);
     setError('');
-    setManualToken('');
   };
 
   // ── Result screen ──
@@ -158,122 +149,58 @@ const QRScanner = () => {
   return (
     <div className="qrs-container">
       <div className="qrs-card glass">
-
-        {/* ── Mode tabs ── */}
-        <div className="qrs-mode-tabs">
-          <button
-            className={`qrs-mode-tab ${mode === 'camera' ? 'active' : ''}`}
-            onClick={() => { setMode('camera'); setError(''); }}
-            id="tab-camera"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-              <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z"/>
-              <path d="M9 3 7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 14.5A5.5 5.5 0 1 1 12 6.5a5.5 5.5 0 0 1 0 11z"/>
-            </svg>
-            Scan with Camera
-          </button>
-          <button
-            className={`qrs-mode-tab ${mode === 'manual' ? 'active' : ''}`}
-            onClick={() => { setMode('manual'); stopScanner(); setError(''); }}
-            id="tab-manual"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            </svg>
-            Enter Code Manually
-          </button>
-        </div>
-
-        {/* ── Camera mode ── */}
-        {mode === 'camera' && (
-          <div className="qrs-camera-section">
-            {!scanning && error !== 'camera_denied' && (
-              <>
-                <div className="qrs-cam-info">
-                  <p>Point your camera at the QR code shown by your teacher</p>
-                </div>
-                {error && error !== 'camera_denied' && (
-                  <div className="qrs-error-box">{error}</div>
-                )}
-                <button className="qrs-btn-start" onClick={startScanner} id="start-scan-btn">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                  </svg>
-                  Start Camera
-                </button>
-                <p className="qrs-note">🔒 Camera only used while scanning</p>
-              </>
-            )}
-
-            {error === 'camera_denied' && (
-              <div className="qrs-denied-box">
-                <div className="qrs-denied-icon">🚫</div>
-                <h4>Camera Access Denied</h4>
-                <p>Your browser blocked camera access. This usually happens on <strong>http://</strong> connections (not https).</p>
-                <p className="qrs-denied-tip">👉 Use the <strong>"Enter Code Manually"</strong> tab instead — ask your teacher to read out the token.</p>
-                <button
-                  className="qrs-btn-switch"
-                  onClick={() => { setMode('manual'); setError(''); }}
-                  id="switch-to-manual-btn"
-                >
-                  Switch to Manual Entry →
-                </button>
+        <div className="qrs-camera-section">
+          {!scanning && error !== 'camera_denied' && (
+            <>
+              <div className="qrs-cam-info">
+                <div className="qrs-cam-icon">📷</div>
+                <h4>Scan QR Code</h4>
+                <p>Point your camera at the QR code shown by your teacher</p>
               </div>
-            )}
-
-            {scanning && (
-              <>
-                <div className="qrs-viewport">
-                  <div id="qr-reader"></div>
-                  <div className="qrs-frame">
-                    <div className="qrs-corner tl"/><div className="qrs-corner tr"/>
-                    <div className="qrs-corner bl"/><div className="qrs-corner br"/>
-                    <div className="qrs-scan-line"/>
-                  </div>
-                  <p className="qrs-hint">Align QR code within the frame</p>
-                </div>
-                <button className="qrs-btn-stop" onClick={stopScanner} id="stop-scan-btn">
-                  ⏹ Stop Camera
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* ── Manual mode ── */}
-        {mode === 'manual' && (
-          <div className="qrs-manual-section">
-            <div className="qrs-manual-info">
-              <div className="qrs-manual-icon">⌨️</div>
-              <h4>Enter Attendance Token</h4>
-              <p>Ask your teacher to share the token shown below the QR code</p>
-            </div>
-            <form onSubmit={handleManualSubmit} className="qrs-manual-form">
-              <input
-                className="qrs-token-input"
-                type="text"
-                placeholder="Paste or type the token here…"
-                value={manualToken}
-                onChange={e => setManualToken(e.target.value)}
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
-                id="manual-token-input"
-              />
-              {error && <p className="qrs-error-text">{error}</p>}
-              <button
-                className="qrs-btn-submit"
-                type="submit"
-                disabled={!manualToken.trim() || submitting}
-                id="submit-token-btn"
-              >
-                {submitting ? 'Marking…' : '✓ Mark Attendance'}
+              {error && (
+                <div className="qrs-error-box">{error}</div>
+              )}
+              <button className="qrs-btn-start" onClick={startScanner} id="start-scan-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                </svg>
+                Start Camera
               </button>
-            </form>
-            <p className="qrs-note">The token looks like: <code>a3f8c2d1-…</code></p>
-          </div>
-        )}
+              <p className="qrs-note">🔒 Camera only used while scanning</p>
+            </>
+          )}
+
+          {error === 'camera_denied' && (
+            <div className="qrs-denied-box">
+              <div className="qrs-denied-icon">🚫</div>
+              <h4>Camera Access Denied</h4>
+              <p>Your browser blocked camera access. Please ensure you are using <strong>HTTPS</strong> or allow camera permissions in your settings.</p>
+              <button
+                className="qrs-btn-start"
+                onClick={startScanner}
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {scanning && (
+            <>
+              <div className="qrs-viewport">
+                <div id="qr-reader"></div>
+                <div className="qrs-frame">
+                  <div className="qrs-corner tl"/><div className="qrs-corner tr"/>
+                  <div className="qrs-corner bl"/><div className="qrs-corner br"/>
+                  <div className="qrs-scan-line"/>
+                </div>
+                <p className="qrs-hint">Align QR code within the frame</p>
+              </div>
+              <button className="qrs-btn-stop" onClick={stopScanner} id="stop-scan-btn">
+                ⏹ Stop Camera
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

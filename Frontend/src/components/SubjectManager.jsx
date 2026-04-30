@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
+import { io } from 'socket.io-client';
 import './SubjectManager.css';
 
 // Predefined teachers per course/department
@@ -31,6 +32,11 @@ const SubjectManager = () => {
   const [qrData, setQrData] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrSubjectId, setQrSubjectId] = useState(null);
+  
+  // Real-time state
+  const [scanCount, setScanCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const socketRef = useRef(null);
 
   const fetchSubjects = async (year) => {
     setLoading(true);
@@ -47,7 +53,31 @@ const SubjectManager = () => {
 
   useEffect(() => {
     fetchSubjects(filterYear);
-  }, [filterYear]);
+
+    // Setup Socket
+    const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    socketRef.current = io(socketUrl, { withCredentials: true });
+
+    socketRef.current.on('student_scanned', (data) => {
+      // Only process if the modal is open for THIS session
+      if (qrData && data.sessionId === qrData.sessionId) {
+        setScanCount(prev => prev + 1);
+        
+        // Add notification
+        const id = Date.now();
+        setNotifications(prev => [{ id, name: data.studentName }, ...prev].slice(0, 5));
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+          setNotifications(prev => prev.filter(n => n.id !== id));
+        }, 5000);
+      }
+    });
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, [filterYear, qrData]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -84,6 +114,8 @@ const SubjectManager = () => {
     setQrLoading(true);
     setQrSubjectId(subjectId);
     setQrData(null);
+    setScanCount(0);
+    setNotifications([]);
     try {
       const { data } = await api.post('/attendance/qr/generate', { subjectId });
       setQrData(data);
@@ -230,28 +262,29 @@ const SubjectManager = () => {
               {qrData.subject.name}
               <span className="sm-qr-sub">Year {qrData.subject.year} · {qrData.subject.teacher}</span>
             </h3>
+            
             <div className="sm-qr-img-wrap">
               <img src={qrData.qrDataUrl} alt="QR Code" className="sm-qr-img" />
+              <div className="sm-qr-live-badge">LIVE</div>
             </div>
+
+            <div className="sm-qr-stats">
+              <div className="sm-stat-item">
+                <span className="sm-stat-val animate-pop">{scanCount}</span>
+                <span className="sm-stat-label">Students Present</span>
+              </div>
+            </div>
+
             <p className="sm-qr-info">⏱ Expires in <strong>10 minutes</strong></p>
 
-            {/* Full token — for manual entry by students */}
-            <div className="sm-qr-token-box">
-              <p className="sm-qr-token-label">📋 Manual entry token (if camera unavailable)</p>
-              <div className="sm-qr-token-row">
-                <code className="sm-qr-token-full" id="qr-token-text">{qrData.token}</code>
-                <button
-                  className="sm-qr-copy-btn"
-                  id="copy-token-btn"
-                  onClick={() => {
-                    navigator.clipboard.writeText(qrData.token).catch(() => {});
-                    const btn = document.getElementById('copy-token-btn');
-                    if (btn) { btn.textContent = '✓ Copied'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
-                  }}
-                >
-                  Copy
-                </button>
-              </div>
+            {/* Live Popups / Notifications */}
+            <div className="sm-notifications">
+              {notifications.map(n => (
+                <div key={n.id} className="sm-notif animate-fade-in-right">
+                  <span className="sm-notif-icon">✅</span>
+                  <span className="sm-notif-text"><strong>{n.name}</strong> marked present</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

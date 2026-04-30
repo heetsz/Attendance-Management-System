@@ -9,6 +9,7 @@ const TABS = [
   { id: 'overview', label: 'Overview', icon: '📊' },
   { id: 'scan', label: 'Scan QR', icon: '📷' },
   { id: 'attendance', label: 'My Attendance', icon: '📋' },
+  { id: 'profile', label: 'Profile', icon: '👤' },
 ];
 
 const StudentDashboard = () => {
@@ -60,7 +61,7 @@ const StudentDashboard = () => {
             <span className="user-name">{user?.name}</span>
             <span className="user-role">UID: {user?.uid} · Year {user?.year}</span>
           </div>
-          <button className="logout-btn" onClick={handleLogout} id="student-logout-btn">
+          <button className="logout-btn desktop-only" onClick={handleLogout} id="student-logout-btn">
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
               <path fillRule="evenodd" d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z" clipRule="evenodd"/>
               <path fillRule="evenodd" d="M19 10a.75.75 0 00-.75-.75H8.704l1.048-.943a.75.75 0 00-1.004-1.114l-2.5 2.25a.75.75 0 000 1.114l2.5 2.25a.75.75 0 101.004-1.114l-1.048-.943h9.546A.75.75 0 0019 10z" clipRule="evenodd"/>
@@ -147,14 +148,44 @@ const StudentDashboard = () => {
           </div>
         )}
 
-        {/* Attendance Report */}
-        {activeTab === 'attendance' && (
+        {/* Profile / Logout */}
+        {activeTab === 'profile' && (
           <div className="animate-fade-in-up">
             <div className="tab-header">
-              <h2 className="tab-title">📋 My Attendance</h2>
-              <p className="tab-sub">Your attendance record across all subjects this year</p>
+              <h2 className="tab-title">👤 My Profile</h2>
+              <p className="tab-sub">Manage your account and view your details</p>
             </div>
-            <AttendanceSummary />
+            
+            <div className="profile-card glass">
+              <div className="profile-header">
+                <div className="profile-avatar">
+                  {user?.name?.charAt(0) || 'S'}
+                </div>
+                <div className="profile-info">
+                  <h3>{user?.name}</h3>
+                  <p>Year {user?.year} Student</p>
+                </div>
+              </div>
+              
+              <div className="profile-details">
+                <div className="profile-detail-item">
+                  <span className="label">University ID</span>
+                  <span className="value">{user?.uid}</span>
+                </div>
+                <div className="profile-detail-item">
+                  <span className="label">Academic Year</span>
+                  <span className="value">Year {user?.year}</span>
+                </div>
+              </div>
+
+              <button className="profile-logout-btn" onClick={handleLogout}>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                  <path fillRule="evenodd" d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z" clipRule="evenodd"/>
+                  <path fillRule="evenodd" d="M19 10a.75.75 0 00-.75-.75H8.704l1.048-.943a.75.75 0 00-1.004-1.114l-2.5 2.25a.75.75 0 000 1.114l2.5 2.25a.75.75 0 101.004-1.114l-1.048-.943h9.546A.75.75 0 0019 10z" clipRule="evenodd"/>
+                </svg>
+                Logout from Device
+              </button>
+            </div>
           </div>
         )}
       </main>

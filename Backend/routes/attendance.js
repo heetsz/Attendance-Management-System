@@ -132,6 +132,14 @@ router.post('/qr/scan', protect, async (req, res) => {
       status: 'present',
     });
 
+    // ── Emit real-time update to admin ──
+    const io = req.app.get('io');
+    io.emit('student_scanned', {
+      sessionId: session._id.toString(),
+      studentName: student.name,
+      studentId: student._id
+    });
+
     res.status(201).json({
       message: 'Attendance marked successfully!',
       subject: session.subjectId.name,

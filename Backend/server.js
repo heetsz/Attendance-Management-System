@@ -2,16 +2,31 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: true,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  }
+});
+
+// Attach io to app for access in routes
+app.set('io', io);
 
 // Middleware
 app.use(cors({
-  origin: true,        // Reflect any origin — allows all browsers/devices
+  origin: true,
   credentials: true,
 }));
 app.use(express.json());
@@ -33,7 +48,7 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
-    app.listen(PORT, '0.0.0.0', () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
       console.log(`   ➜  Local:   http://localhost:${PORT}`);
     });
