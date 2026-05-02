@@ -148,6 +148,17 @@ const StudentDashboard = () => {
           </div>
         )}
 
+        {/* My Attendance */}
+        {activeTab === 'attendance' && (
+          <div className="animate-fade-in-up">
+            <div className="tab-header">
+              <h2 className="tab-title">📋 My Attendance</h2>
+              <p className="tab-sub">View your attendance records, stats, and history for each subject</p>
+            </div>
+            <AttendanceSummary />
+          </div>
+        )}
+
         {/* Profile / Logout */}
         {activeTab === 'profile' && (
           <div className="animate-fade-in-up">
