@@ -3,7 +3,7 @@ import axios from 'axios';
 // Relative URL — requests go to same host as the page (Vite proxies to Express)
 // This works on localhost AND any LAN IP with zero config changes
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
