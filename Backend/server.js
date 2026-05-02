@@ -6,8 +6,6 @@ const http = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-
 const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 
@@ -17,7 +15,7 @@ const server = http.createServer(app);
 // Initialize Socket.io
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: true,
     methods: ['GET', 'POST'],
     credentials: true,
   }
@@ -28,7 +26,7 @@ app.set('io', io);
 
 // Middleware
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: true,
   credentials: true,
 }));
 app.use(express.json());
