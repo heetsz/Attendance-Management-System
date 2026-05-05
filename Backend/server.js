@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
+const grafanaMetricsRoutes = require('./routes/grafana-metrics');
 
 const app = express();
 const server = http.createServer(app);
@@ -35,6 +36,7 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/grafana', grafanaMetricsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
