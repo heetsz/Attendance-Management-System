@@ -118,7 +118,7 @@ router.post('/qr/scan', protect, async (req, res) => {
 
     // If token contains extra text, extract the first UUID-looking substring.
     const uuidMatch = token.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
-    if (uuidMatch) token = uuidMatch[0];
+    if (uuidMatch) token = uuidMatch[0].toLowerCase();
 
     const session = await QRSession.findOne({ token }).populate('subjectId');
     if (!session) {
