@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import TakeAttendance from '../components/TakeAttendance';
+import AttendanceChecker from '../components/AttendanceChecker';
+import AdminChatbot from '../components/AdminChatbot';
 import './Dashboard.css';
 
 const SIDEBAR_TABS = [
   { id: 'attendance', label: 'Take Attendance', icon: '📋' },
+  { id: 'check', label: 'Check Attendance', icon: '📊' },
 ];
 
 const AdminDashboard = () => {
@@ -13,6 +16,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('attendance');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [checkAttendanceState, setCheckAttendanceState] = useState(null);
 
   const handleLogout = async () => {
     await logout();
@@ -126,7 +130,25 @@ const AdminDashboard = () => {
             <TakeAttendance />
           </div>
         )}
+
+        {activeTab === 'check' && (
+          <div className="animate-fade-in-up">
+            <div className="tab-header">
+              <h2 className="tab-title">📊 Check Attendance</h2>
+              <p className="tab-sub">Choose a subject and view attendance for each student</p>
+            </div>
+            <AttendanceChecker onStateChange={setCheckAttendanceState} />
+          </div>
+        )}
       </main>
+
+      <AdminChatbot
+        dashboardState={{
+          admin: user ? { id: user.id, name: user.name, username: user.username, role: user.role } : null,
+          activeTab,
+          checkAttendance: checkAttendanceState,
+        }}
+      />
     </div>
   );
 };

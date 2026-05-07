@@ -2,28 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const http = require('http');
-const { Server } = require('socket.io');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 const grafanaMetricsRoutes = require('./routes/grafana-metrics');
+const groqRoutes = require('./routes/groq');
 
 const app = express();
-const server = http.createServer(app);
-
-// Initialize Socket.io
-const io = new Server(server, {
-  cors: {
-    origin: true,
-    methods: ['GET', 'POST'],
-    credentials: true,
-  }
-});
-
-// Attach io to app for access in routes
-app.set('io', io);
 
 // Middleware
 app.use(cors({
@@ -37,6 +23,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/grafana', grafanaMetricsRoutes);
+app.use('/api/groq', groqRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -50,7 +37,7 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
-    server.listen(PORT, '0.0.0.0', () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
       console.log(`   ➜  Local:   http://localhost:${PORT}`);
     });

@@ -8,6 +8,31 @@ const Timetable = require('./models/Timetable');
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/attendance_management';
 
+// ─── Year 3 Student Roster (as provided) ───
+// All passwords default to "student123" for seeded accounts
+const YEAR_3_STUDENTS = [
+  { uid: '2023300195', name: 'Vishwajit Sarnobat' },
+  { uid: '2023300196', name: 'Ansh Santosh Savarkar' },
+  { uid: '2023300197', name: 'Arsalan Sayed' },
+  { uid: '2023300198', name: 'Asmiya Kadir Sayyad' },
+  { uid: '2023300199', name: 'Hetanshi Shah' },
+  { uid: '2023300200', name: 'Aaryan Shah' },
+  { uid: '2023300201', name: 'Aayush Pritesh Shah' },
+  { uid: '2023300202', name: 'Bhavya Tushar Shah' },
+  { uid: '2023300203', name: 'Devansh Shah' },
+  { uid: '2023300204', name: 'Dhruv Suchitkumar Shah' },
+  { uid: '2023300205', name: 'Hardik Rahul Shah' },
+  { uid: '2023300206', name: 'Harshal Samir Shah' },
+  { uid: '2023300207', name: 'Harshav Kunal Shah' },
+  { uid: '2023300208', name: 'Heet Shah' },
+  { uid: '2023300209', name: 'Heet Prakash Shah' },
+  { uid: '2023300210', name: 'Het Shah' },
+  { uid: '2023300211', name: 'Shah Hitarth Jinendra' },
+  { uid: '2023300212', name: 'Jash Samir Shah' },
+  { uid: '2024301008', name: 'Saina Abdul Hamid' },
+  { uid: '2024301020', name: 'Kalpak Shankar Patil' },
+];
+
 // ─── Year 2 Timetable (Heet's year) — Full week ───
 const YEAR_2_TIMETABLE = {
   Monday: [
@@ -170,11 +195,13 @@ const seedData = async () => {
 
     // Seed Students (all with default password "student123")
     const students = await Student.create([
-      { uid: '2023300208', name: 'Heet Shah',     password: 'student123', year: 2 },
-      { uid: '2023300209', name: 'Priya Singh',   password: 'student123', year: 2 },
-      { uid: '2023300210', name: 'Rohit Verma',   password: 'student123', year: 2 },
-      { uid: '2023300211', name: 'Neha Gupta',    password: 'student123', year: 3 },
-      { uid: '2023300212', name: 'Vikram Joshi',  password: 'student123', year: 4 },
+      // Year 3 roster
+      ...YEAR_3_STUDENTS.map(s => ({ ...s, password: 'student123', year: 3 })),
+
+      // Minimal demo students for other years (use non-conflicting UIDs)
+      { uid: '2025300001', name: 'Year 1 Demo Student', password: 'student123', year: 1 },
+      { uid: '2025300002', name: 'Year 2 Demo Student', password: 'student123', year: 2 },
+      { uid: '2025300004', name: 'Year 4 Demo Student', password: 'student123', year: 4 },
     ]);
     console.log(`🎓 Created ${students.length} student accounts`);
 

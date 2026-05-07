@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../services/api';
-import { io } from 'socket.io-client';
 import './TakeAttendance.css';
 
 const YEARS = [1, 2, 3, 4];
@@ -12,10 +11,7 @@ const TakeAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
-  const [scanCount, setScanCount] = useState(0);
-  const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState('');
-  const socketRef = useRef(null);
 
   // Fetch today's timetable
   const fetchToday = async (year) => {
@@ -35,31 +31,8 @@ const TakeAttendance = () => {
     if (selectedYear) fetchToday(selectedYear);
   }, [selectedYear]);
 
-  // Socket connection for live updates
-  useEffect(() => {
-    const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    socketRef.current = io(socketUrl, { withCredentials: true });
-
-    socketRef.current.on('student_scanned', (data) => {
-      if (qrData && data.sessionId === qrData.sessionId) {
-        setScanCount(prev => prev + 1);
-        const id = Date.now();
-        setNotifications(prev => [{ id, name: data.studentName }, ...prev].slice(0, 5));
-        setTimeout(() => {
-          setNotifications(prev => prev.filter(n => n.id !== id));
-        }, 5000);
-      }
-    });
-
-    return () => {
-      if (socketRef.current) socketRef.current.disconnect();
-    };
-  }, [qrData]);
-
   const handleStartAttendance = async (slot) => {
     setQrLoading(true);
-    setScanCount(0);
-    setNotifications([]);
     setError('');
     try {
       const { data } = await api.post('/attendance/timetable/start', {
@@ -76,8 +49,6 @@ const TakeAttendance = () => {
 
   const closeQr = () => {
     setQrData(null);
-    setScanCount(0);
-    setNotifications([]);
     if (selectedYear) fetchToday(selectedYear);
   };
 
@@ -197,27 +168,9 @@ const TakeAttendance = () => {
 
             <div className="ta-qr-img-wrap">
               <img src={qrData.qrDataUrl} alt="QR Code" className="ta-qr-img" />
-              <div className="ta-qr-live">LIVE</div>
-            </div>
-
-            <div className="ta-qr-stats">
-              <div className="ta-stat">
-                <span className="ta-stat-val">{scanCount}</span>
-                <span className="ta-stat-label">Students Present</span>
-              </div>
             </div>
 
             <p className="ta-qr-timer">⏱ Expires in <strong>10 minutes</strong></p>
-
-            {/* Live Notifications */}
-            <div className="ta-notifications">
-              {notifications.map(n => (
-                <div key={n.id} className="ta-notif">
-                  <span className="ta-notif-icon">✅</span>
-                  <span className="ta-notif-text"><strong>{n.name}</strong> marked present</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>,
         document.body

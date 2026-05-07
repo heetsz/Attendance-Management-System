@@ -1,0 +1,247 @@
+/* Attendance Checker */
+
+.ac-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ac-card {
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.ac-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.ac-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+}
+
+.ac-sub {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+  color: var(--gray-400);
+}
+
+.ac-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ac-year-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ac-year-tab {
+  padding: 8px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.03);
+  color: var(--gray-300);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ac-year-tab:hover {
+  background: rgba(255,255,255,0.06);
+  color: white;
+}
+
+.ac-year-tab.active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--primary-300);
+}
+
+.ac-subject-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 280px;
+}
+
+.ac-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ac-select {
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(15, 23, 42, 0.55);
+  color: white;
+  font-family: inherit;
+  padding: 0 12px;
+}
+
+.ac-select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ac-info {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.02);
+  color: var(--gray-300);
+  font-size: 0.9rem;
+}
+
+.ac-error {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.07);
+  color: #fca5a5;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.ac-overview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.ac-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.02);
+  min-width: 140px;
+}
+
+.ac-metric-val {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: white;
+}
+
+.ac-metric-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ac-table-wrap {
+  margin-top: 12px;
+  overflow: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.ac-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+.ac-table thead th {
+  text-align: left;
+  font-size: 0.76rem;
+  color: var(--gray-400);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 12px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ac-table tbody td {
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: white;
+  font-size: 0.9rem;
+}
+
+.ac-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.ac-student {
+  font-weight: 750;
+}
+
+.ac-uid {
+  color: var(--gray-300);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+}
+
+.ac-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 800;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.03);
+  color: var(--gray-200);
+}
+
+.ac-pill.good {
+  border-color: rgba(20, 184, 166, 0.35);
+  background: rgba(20, 184, 166, 0.12);
+  color: var(--accent-400);
+}
+
+.ac-pill.warn {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+
+.ac-pill.bad {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.10);
+  color: #fca5a5;
+}
+
+@media (max-width: 768px) {
+  .ac-card {
+    padding: 14px;
+  }
+
+  .ac-subject-select {
+    min-width: 100%;
+  }
+
+  .ac-metric {
+    min-width: auto;
+  }
+}

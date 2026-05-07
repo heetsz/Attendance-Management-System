@@ -1,0 +1,228 @@
+/* Admin Chatbot (floating button + panel) */
+
+.acb-root {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 999;
+}
+
+.acb-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 20px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.acb-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.acb-panel {
+  width: min(380px, calc(100vw - 28px));
+  height: 520px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.acb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.acb-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: white;
+}
+
+.acb-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.9);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+}
+
+.acb-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.02);
+  color: var(--gray-300);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.acb-close:hover {
+  background: rgba(255,255,255,0.06);
+  color: white;
+}
+
+.acb-messages {
+  flex: 1;
+  overflow: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.acb-msg {
+  display: flex;
+}
+
+.acb-msg.user {
+  justify-content: flex-end;
+}
+
+.acb-msg.assistant {
+  justify-content: flex-start;
+}
+
+.acb-bubble {
+  max-width: 86%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: white;
+  overflow-wrap: anywhere;
+}
+
+/* Markdown defaults inside bubbles */
+.acb-bubble :where(p, ul, ol, pre, blockquote) {
+  margin: 0;
+}
+
+.acb-bubble :where(p + p, p + ul, p + ol, ul + p, ol + p, pre + p, p + pre) {
+  margin-top: 8px;
+}
+
+.acb-bubble :where(ul, ol) {
+  padding-left: 18px;
+}
+
+.acb-bubble :where(li) {
+  margin: 4px 0;
+}
+
+.acb-bubble :where(a) {
+  color: var(--primary-300);
+  text-decoration: underline;
+}
+
+.acb-bubble :where(code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.82rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+.acb-bubble :where(pre) {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  overflow: auto;
+}
+
+.acb-bubble :where(pre code) {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.acb-msg.user .acb-bubble {
+  background: rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.30);
+}
+
+.acb-msg.assistant .acb-bubble {
+  background: rgba(255,255,255,0.03);
+}
+
+.acb-error {
+  margin: 0 12px 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.07);
+  color: #fca5a5;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.acb-input {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.acb-text {
+  flex: 1;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(15, 23, 42, 0.55);
+  color: white;
+  font-family: inherit;
+  padding: 0 12px;
+}
+
+.acb-send {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+}
+
+.acb-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .acb-root {
+    right: 14px;
+    bottom: calc(14px + 72px);
+  }
+
+  .acb-panel {
+    height: min(520px, calc(100vh - 160px));
+  }
+}
