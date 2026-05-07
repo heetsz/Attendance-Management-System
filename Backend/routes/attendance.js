@@ -98,18 +98,37 @@ router.post('/qr/scan', protect, async (req, res) => {
       return res.status(403).json({ message: 'Only students can mark attendance' });
     }
 
-    const { token } = req.body;
+    let { token } = req.body;
+    if (typeof token !== 'string') token = '';
+    token = token.trim();
     if (!token) return res.status(400).json({ message: 'QR token is required' });
 
-    const session = await QRSession.findOne({ token, active: true }).populate('subjectId');
+    // Some scanners may return a full URL instead of the raw token.
+    // Try to extract a UUID-ish token from common URL shapes.
+    try {
+      if (/^https?:\/\//i.test(token)) {
+        const parsed = new URL(token);
+        const qp = parsed.searchParams.get('token') || parsed.searchParams.get('t');
+        const lastSeg = parsed.pathname.split('/').filter(Boolean).pop();
+        token = (qp || lastSeg || token).trim();
+      }
+    } catch {
+      // Ignore parse failures and use token as-is
+    }
+
+    const session = await QRSession.findOne({ token }).populate('subjectId');
     if (!session) {
-      return res.status(404).json({ message: 'Invalid or expired QR code' });
+      return res.status(404).json({ message: 'Invalid QR code' });
     }
 
     if (new Date() > session.expiresAt) {
       session.active = false;
       await session.save();
       return res.status(410).json({ message: 'QR code has expired' });
+    }
+
+    if (!session.active) {
+      return res.status(410).json({ message: 'QR code is no longer active. Ask your teacher to generate a new one.' });
     }
 
     // Check if student is in the right year
