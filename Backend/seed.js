@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const { v4: uuidv4 } = require('uuid');
+
 const Admin = require('./models/Admin');
 const Student = require('./models/Student');
 const Subject = require('./models/Subject');
 const Timetable = require('./models/Timetable');
+const QRSession = require('./models/QRSession');
+const Attendance = require('./models/Attendance');
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/attendance_management';
 
@@ -112,29 +116,34 @@ const YEAR_3_TIMETABLE = {
     { startTime: '10:00', endTime: '11:00', subject: 'Machine Learning', teacher: 'Prof. Anil Mehta' },
     { startTime: '11:15', endTime: '12:15', subject: 'Web Development', teacher: 'Prof. Suresh Kumar' },
     { startTime: '13:00', endTime: '14:00', subject: 'Theory of Computation', teacher: 'Dr. Meena Joshi' },
+    { startTime: '14:00', endTime: '15:00', subject: 'DevOps', teacher: 'Prof Anas Ansari' },
   ],
   Tuesday: [
     { startTime: '09:00', endTime: '10:00', subject: 'Machine Learning', teacher: 'Prof. Anil Mehta' },
     { startTime: '10:00', endTime: '11:00', subject: 'Software Engineering', teacher: 'Dr. Anita Desai' },
     { startTime: '11:15', endTime: '12:15', subject: 'Theory of Computation', teacher: 'Dr. Meena Joshi' },
     { startTime: '13:00', endTime: '14:00', subject: 'Web Development', teacher: 'Prof. Suresh Kumar' },
+    { startTime: '14:00', endTime: '15:00', subject: 'DevOps', teacher: 'Prof Anas Ansari' },
   ],
   Wednesday: [
     { startTime: '09:00', endTime: '10:00', subject: 'Web Development', teacher: 'Prof. Suresh Kumar' },
     { startTime: '10:00', endTime: '11:00', subject: 'Theory of Computation', teacher: 'Dr. Meena Joshi' },
     { startTime: '11:15', endTime: '12:15', subject: 'Machine Learning', teacher: 'Prof. Anil Mehta' },
     { startTime: '13:00', endTime: '14:00', subject: 'Software Engineering', teacher: 'Dr. Anita Desai' },
+    { startTime: '14:00', endTime: '15:00', subject: 'DevOps', teacher: 'Prof Anas Ansari' },
   ],
   Thursday: [
     { startTime: '09:00', endTime: '10:00', subject: 'Theory of Computation', teacher: 'Dr. Meena Joshi' },
     { startTime: '10:00', endTime: '11:00', subject: 'Web Development', teacher: 'Prof. Suresh Kumar' },
     { startTime: '11:15', endTime: '12:15', subject: 'Software Engineering', teacher: 'Dr. Anita Desai' },
     { startTime: '13:00', endTime: '14:00', subject: 'Machine Learning', teacher: 'Prof. Anil Mehta' },
+    { startTime: '14:00', endTime: '15:00', subject: 'DevOps', teacher: 'Prof Anas Ansari' },
   ],
   Friday: [
     { startTime: '09:00', endTime: '10:00', subject: 'Software Engineering', teacher: 'Dr. Anita Desai' },
     { startTime: '10:00', endTime: '11:00', subject: 'Machine Learning', teacher: 'Prof. Anil Mehta' },
     { startTime: '11:15', endTime: '12:15', subject: 'Web Development', teacher: 'Prof. Suresh Kumar' },
+    { startTime: '13:00', endTime: '14:00', subject: 'DevOps', teacher: 'Prof Anas Ansari' },
   ],
 };
 
@@ -173,6 +182,26 @@ const ALL_TIMETABLES = {
   4: YEAR_4_TIMETABLE,
 };
 
+const hashStringToUint32 = (input) => {
+  // Small deterministic hash (FNV-1a style)
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+};
+
+const seededFloat01 = (seedStr) => {
+  // xorshift32 -> [0,1)
+  let x = hashStringToUint32(seedStr) || 1;
+  x ^= x << 13;
+  x ^= x >>> 17;
+  x ^= x << 5;
+  // 2^32
+  return (x >>> 0) / 4294967296;
+};
+
 const seedData = async () => {
   try {
     await mongoose.connect(MONGO_URI);
@@ -183,10 +212,12 @@ const seedData = async () => {
     await Student.deleteMany({});
     await Subject.deleteMany({});
     await Timetable.deleteMany({});
+    await QRSession.deleteMany({});
+    await Attendance.deleteMany({});
     console.log('🗑️  Cleared existing data');
 
     // Seed single Admin
-    await Admin.create({
+    const admin = await Admin.create({
       username: 'admin',
       password: 'admin',
       name: 'Administrator',
@@ -237,6 +268,56 @@ const seedData = async () => {
     await Timetable.insertMany(timetableDocs);
     console.log(`📅 Created ${timetableDocs.length} timetable entries (${Object.keys(ALL_TIMETABLES).length} years × 5 days)`);
 
+    // ─── Seed Year 3 Attendance (QR sessions + per-student records) ───
+    const year3Subjects = await Subject.find({ year: 3 }).sort({ name: 1 });
+    const year3Students = students.filter(s => s.year === 3);
+
+    const sessionsPerSubject = 12;
+    const farFuture = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    const qrSessionsToCreate = [];
+    const qrSessionMeta = [];
+
+    year3Subjects.forEach((subject, subjectIdx) => {
+      for (let sessionIdx = 0; sessionIdx < sessionsPerSubject; sessionIdx++) {
+        const createdAt = new Date(Date.now() - ((sessionIdx + 1) * 24 * 60 * 60 * 1000) - (subjectIdx * 60 * 60 * 1000));
+        qrSessionsToCreate.push({
+          token: uuidv4(),
+          subjectId: subject._id,
+          year: 3,
+          createdBy: admin._id,
+          expiresAt: farFuture,
+          active: false,
+          createdAt,
+          updatedAt: createdAt,
+        });
+        qrSessionMeta.push({ subjectName: subject.name, subjectId: subject._id, sessionIdx, createdAt });
+      }
+    });
+
+    const createdSessions = await QRSession.insertMany(qrSessionsToCreate);
+    console.log(`🧾 Created ${createdSessions.length} Year 3 QR sessions (${year3Subjects.length} subjects × ${sessionsPerSubject})`);
+
+    const attendanceToCreate = [];
+    createdSessions.forEach((sessionDoc, i) => {
+      const meta = qrSessionMeta[i];
+      year3Students.forEach((student) => {
+        const r = seededFloat01(`${student.uid}|${meta.subjectName}|${meta.sessionIdx}`);
+        const present = r < 0.86;
+        attendanceToCreate.push({
+          studentId: student._id,
+          subjectId: meta.subjectId,
+          qrSessionId: sessionDoc._id,
+          status: present ? 'present' : 'absent',
+          markedAt: new Date(meta.createdAt.getTime() + (present ? 3 : 55) * 60 * 1000),
+          createdAt: new Date(meta.createdAt.getTime() + (present ? 3 : 55) * 60 * 1000),
+          updatedAt: new Date(meta.createdAt.getTime() + (present ? 3 : 55) * 60 * 1000),
+        });
+      });
+    });
+
+    await Attendance.insertMany(attendanceToCreate);
+    console.log(`✅ Seeded Year 3 attendance records: ${attendanceToCreate.length}`);
+
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📋 SEED DATA SUMMARY');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -251,6 +332,11 @@ const seedData = async () => {
       const totalSlots = Object.values(days).reduce((sum, s) => sum + s.length, 0);
       console.log(`   Year ${year}: ${Object.keys(days).length} days, ${totalSlots} lecture slots/week`);
     }
+
+    console.log('\n🧾 Attendance Seed Summary:');
+    console.log(`   Year 3 subjects: ${year3Subjects.length}`);
+    console.log(`   Year 3 sessions/subject: ${sessionsPerSubject}`);
+    console.log(`   Year 3 students: ${year3Students.length}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     await mongoose.disconnect();
