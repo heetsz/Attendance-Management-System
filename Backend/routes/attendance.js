@@ -116,6 +116,10 @@ router.post('/qr/scan', protect, async (req, res) => {
       // Ignore parse failures and use token as-is
     }
 
+    // If token contains extra text, extract the first UUID-looking substring.
+    const uuidMatch = token.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
+    if (uuidMatch) token = uuidMatch[0];
+
     const session = await QRSession.findOne({ token }).populate('subjectId');
     if (!session) {
       return res.status(404).json({ message: 'Invalid QR code' });
@@ -134,6 +138,9 @@ router.post('/qr/scan', protect, async (req, res) => {
     // Check if student is in the right year
     const Student = require('../models/Student');
     const student = await Student.findById(req.user.id);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found. Please login again.' });
+    }
     if (student.year !== session.year) {
       return res.status(403).json({ message: `This QR is for Year ${session.year} students only` });
     }
@@ -144,17 +151,33 @@ router.post('/qr/scan', protect, async (req, res) => {
       return res.status(409).json({ message: 'Attendance already marked for this lecture' });
     }
 
+    const subjectId = session.subjectId?._id || session.subjectId;
+    if (!subjectId) {
+      return res.status(404).json({ message: 'Subject not found for this QR session' });
+    }
+
     const record = await Attendance.create({
       studentId: req.user.id,
-      subjectId: session.subjectId._id,
+      subjectId,
       qrSessionId: session._id,
       status: 'present',
     });
 
+    let subjectName = session.subjectId?.name;
+    let subjectTeacher = session.subjectId?.teacher;
+    if (!subjectName || !subjectTeacher) {
+      const subject = await Subject.findById(subjectId).select('name teacher');
+      if (!subject) {
+        return res.status(404).json({ message: 'Subject not found for this QR session' });
+      }
+      subjectName = subject.name;
+      subjectTeacher = subject.teacher;
+    }
+
     res.status(201).json({
       message: 'Attendance marked successfully!',
-      subject: session.subjectId.name,
-      teacher: session.subjectId.teacher,
+      subject: subjectName,
+      teacher: subjectTeacher,
       markedAt: record.markedAt,
     });
   } catch (err) {
