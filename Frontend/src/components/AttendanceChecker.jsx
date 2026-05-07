@@ -183,7 +183,7 @@ const AttendanceChecker = ({ onStateChange }) => {
                     <td>{r.attended}</td>
                     <td>{r.missed}</td>
                     <td>
-                      <span className={`ac-pill ${r.percentage >= 75 ? 'good' : r.percentage >= 50 ? 'warn' : 'bad'}`}>
+                      <span className={`ac-pill ${r.percentage > 75 ? 'good' : 'bad'}`}>
                         {r.percentage}%
                       </span>
                     </td>
